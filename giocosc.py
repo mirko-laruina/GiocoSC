@@ -2,11 +2,13 @@ from sympy.utilities.iterables import multiset_permutations
 import numpy as np
 import sys, os
 
-DEBUG = False
 
 def printd(*args):
     if(DEBUG==True):
         print(*args)
+
+DEBUG = False
+HISTORY_THRESHOLD = 1000
 
 Ntot = 20
 N4 = 14
@@ -30,7 +32,7 @@ for currentSet in multiset_permutations(startingUnified):
     #starting1 = [4, 4, 3, 4, 1, 4, 4, 4, 4, 4]
 
     #Start playing!
-    #1 always starts first
+    #0 always starts first
     s0 = list(currentSet[:Ntot//2])
     s1 = list(currentSet[Ntot//2:])
     s = [s0, s1]
@@ -45,10 +47,10 @@ for currentSet in multiset_permutations(startingUnified):
         found = False
 
         moves = moves+1
-        printd("Move:", moves)
+        #printd("Move:", moves)
 
         
-        printd("Turn:", who)
+        #printd("Turn:", who)
         buf.append(s[who][0])
         if s[who].pop(0) < 4:
             who = (who+1)%2
@@ -68,12 +70,12 @@ for currentSet in multiset_permutations(startingUnified):
         
 
         tries = -1
-        printd("Current buffer", buf)
+        #printd("Current buffer", buf)
         for i in buf:
             if i >= 4 and tries > 0:
                 tries = tries - 1
                 if tries == 0:
-                    printd("Appending buffer:", buf)
+                    #printd("Appending buffer:", buf)
                     s[(who+1)%2].extend(buf)
                     
                     #if not who%2:
@@ -90,10 +92,10 @@ for currentSet in multiset_permutations(startingUnified):
             who = (who+1)%2;
 
 
-        printd("s[0]:", s[0])
-        printd("s[1]:", s[1])
-        printd("buffer:", buf)
-        printd('--------------------------------------')
+        #printd("s[0]:", s[0])
+        #printd("s[1]:", s[1])
+        #printd("buffer:", buf)
+        #printd('--------------------------------------')
 
         #It should be quicker ignoring saving history and do it on request
         if save_history == True:
@@ -101,27 +103,17 @@ for currentSet in multiset_permutations(startingUnified):
             s_history = s[0]+[-1]+s[1]+[-1]+buf+[-1]+[who]
             for item in history:
                 if item == s_history:
-                    print("Cicle?", starting0, starting1)
+                    print("Cycling on", starting0, starting1)
                     print("Period:", len(history)-history.index(item))
                     history.clear()
                     found = True
                     save_history = False
             history.append(s_history)
 
-        """ OLD METHOD: it doesn't work
-        try:
-            if ((s[0] == starting0 and s[1] == starting1) or (s[0] == starting1 and s[1] == starting0)):
-                print(s[0], starting0, s[1], starting1)
-                print("FOUND?")
-                sys.exit(0)
-        except Exception as err:
-            continue
-
-        """
-        if moves > 1000:
+        if moves > HISTORY_THRESHOLD:
             save_history = True
-            s[0] = starting0
-            s[1] = starting1
+            s[0] = list(starting0)
+            s[1] = list(starting1)
             buf.clear()
             who = 0
             moves = 0
