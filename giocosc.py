@@ -42,55 +42,32 @@ for currentSet in multiset_permutations(startingUnified):
     history = []
     found = False
     save_history = False
+    tries = -1
 
     while found == False and not ( len(s[0]) == 0 or len(s[1]) == 0) :
         found = False
-
         moves = moves+1
+
         #printd("Move:", moves)
-
-        
         #printd("Turn:", who)
-        buf.append(s[who][0])
-        if s[who].pop(0) < 4:
+
+        currElem = s[who].pop(0)
+        buf.append(currElem)
+        if currElem < 4:
             who = (who+1)%2
-
-        """
-        if who%2:
-            printd("Turn:", 1)
-            buf.append(s[0][0])
-            if s[0].pop(0) < 4:
-                who = who+1
+            tries = currElem
+        #when currElem >= 4 and tries >= 0: player under attack
+        elif tries >= 0:
+            tries = tries - 1
+            #Attack successful
+            if tries == 0:
+                who = (who+1)%2
+                s[who].extend(buf)
+                buf.clear()
+                tries = -1
+        #currEleme >= 4 and tries == -1: no player is being attacked
         else:
-            printd("Turn:", 2)
-            buf.append(s[1][0])
-            if s[1].pop(0) < 4:
-                who = who+1
-        """
-        
-
-        tries = -1
-        #printd("Current buffer", buf)
-        for i in buf:
-            if i >= 4 and tries > 0:
-                tries = tries - 1
-                if tries == 0:
-                    #printd("Appending buffer:", buf)
-                    s[(who+1)%2].extend(buf)
-                    
-                    #if not who%2:
-                    #    s[1].extend(buf)
-                    #else:
-                    #    s[0].extend(buf)
-                    
-                    buf = []
-            elif i < 4:
-                    tries = i
-
-
-        if(len(buf) == 0 or tries == -1):
-            who = (who+1)%2;
-
+            who = (who+1)%2
 
         #printd("s[0]:", s[0])
         #printd("s[1]:", s[1])
