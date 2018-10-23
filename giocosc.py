@@ -7,14 +7,14 @@ def printd(*args):
     if(DEBUG==True):
         print(*args)
 
-DEBUG = False
+DEBUG = True
 HISTORY_THRESHOLD = 1000
 
-Ntot = 20
-N4 = 14
-N3 = 2
-N2 = 2
-N1 = 2
+Ntot = 40
+N4 = 28
+N3 = 4
+N2 = 4
+N1 = 4
 
 startingUnified = [4]*N4 + [3]*N3 + [2]*N2 + [1]*N1
 startingUnified = np.array(startingUnified, np.int8)
@@ -30,11 +30,14 @@ for currentSet in multiset_permutations(startingUnified):
 
     #starting0 = [1, 3, 4, 2, 4, 2, 4, 4, 4, 4]
     #starting1 = [4, 4, 3, 4, 1, 4, 4, 4, 4, 4]
+    #starting0 = [1, 1, 1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 3, 4, 4, 4]
+    #starting1 = [4, 3, 4, 4, 4, 4, 4, 4, 4, 3, 3, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+
 
     #Start playing!
     #0 always starts first
-    s0 = list(currentSet[:Ntot//2])
-    s1 = list(currentSet[Ntot//2:])
+    s0 = list(starting0)
+    s1 = list(starting1)
     s = [s0, s1]
     buf = []
     who = 0
@@ -43,14 +46,12 @@ for currentSet in multiset_permutations(startingUnified):
     found = False
     save_history = False
     tries = -1
-
-    while found == False and not ( len(s[0]) == 0 or len(s[1]) == 0) :
+    while found == False :
         found = False
         moves = moves+1
 
         #printd("Move:", moves)
         #printd("Turn:", who)
-
         currElem = s[who].pop(0)
         buf.append(currElem)
         if currElem < 4:
@@ -69,6 +70,9 @@ for currentSet in multiset_permutations(startingUnified):
         else:
             who = (who+1)%2
 
+        if(len(s[who]) == 0):
+            break
+
         #printd("s[0]:", s[0])
         #printd("s[1]:", s[1])
         #printd("buffer:", buf)
@@ -81,6 +85,7 @@ for currentSet in multiset_permutations(startingUnified):
             for item in history:
                 if item == s_history:
                     print("Cycling on", starting0, starting1)
+                    print("Cycle starting state", s[0], s[1], buf, who)
                     print("Period:", len(history)-history.index(item))
                     history.clear()
                     found = True
@@ -88,12 +93,15 @@ for currentSet in multiset_permutations(startingUnified):
             history.append(s_history)
 
         if moves > HISTORY_THRESHOLD:
-            save_history = True
-            s[0] = list(starting0)
-            s[1] = list(starting1)
-            buf.clear()
-            who = 0
-            moves = 0
+            if save_history != False:
+                save_history = True
+                s[0] = list(starting0)
+                s[1] = list(starting1)
+                buf.clear()
+
+                who = 0
+                moves = 0
         
     if moves > max_moves:
         max_moves = moves
+    #sys.exit(0)
